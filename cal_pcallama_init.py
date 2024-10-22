@@ -77,12 +77,12 @@ all_layers_key_states_eigenvalues_descending, all_layers_value_states_eigenvalue
 # save_tensor_list(all_layers_key_states_eigenvalues_descending, "/liymai24/sjtu/bokai/PCA_kvcache/experiment_log/siqa_key_eigen_values_3.json")
 # save_tensor_list(all_layers_value_states_eigenvalues_descending, "/liymai24/sjtu/bokai/PCA_kvcache/experiment_log/siqa_value_eigen_values_3.json")
 
-torch.save(all_layers_key_states_eigenvalues_descending, 'per_head_data/gsm8k/all_layers_key_states_eigenvalues_descending.pth')
-torch.save(all_layers_value_states_eigenvalues_descending, 'per_head_data/gsm8k/all_layers_value_states_eigenvalues_descending.pth')
-torch.save(all_layers_key_states_eigenvectors_descending, 'per_head_data/gsm8k/all_layers_key_states_eigenvectors_descending.pth')
-torch.save(all_layers_value_states_eigenvectors_descending, 'per_head_data/gsm8k/all_layers_value_states_eigenvectors_descending.pth')
-torch.save(mean_key_tensor, 'per_head_data/gsm8k/all_layers_key_mean.pth')
-torch.save(mean_value_tensor, 'per_head_data/gsm8k/all_layers_value_mean.pth')
+torch.save(all_layers_key_states_eigenvalues_descending, 'per_head_data/alpaca/all_layers_key_states_eigenvalues_descending.pth')
+torch.save(all_layers_value_states_eigenvalues_descending, 'per_head_data/alpaca/all_layers_value_states_eigenvalues_descending.pth')
+torch.save(all_layers_key_states_eigenvectors_descending, 'per_head_data/alpaca/all_layers_key_states_eigenvectors_descending.pth')
+torch.save(all_layers_value_states_eigenvectors_descending, 'per_head_data/alpaca/all_layers_value_states_eigenvectors_descending.pth')
+torch.save(mean_key_tensor, 'per_head_data/alpaca/all_layers_key_mean.pth')
+torch.save(mean_value_tensor, 'per_head_data/alpaca/all_layers_value_mean.pth')
 
 
     
