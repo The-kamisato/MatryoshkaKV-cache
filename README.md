@@ -4,5 +4,9 @@
 
 # Performance
 
-![architecture](https://github.com/The-kamisato/MatryoshkaKV-cache/blob/main/figure/result_table.jpg)
+![result table](https://github.com/The-kamisato/MatryoshkaKV-cache/blob/main/figure/result_table.jpg)
+
+# Visualization
+
+![compression rate](https://github.com/The-kamisato/MatryoshkaKV-cache/blob/main/figure/compression_rate.jpg)
 
