@@ -8,7 +8,7 @@ from gsm8k import Gsm8kDataset
 from obqa import ObqaDataset
 from alpaca_en import AlpacaDataset
 from transformers import LlamaModel, LlamaForCausalLM, AutoTokenizer
-from eigenvalues_decomposition_v2 import sum_kv_states_per_head, kv_states_per_head_convariance_decomposition
+from eigenvalues_decomposition import sum_kv_states_per_head, kv_states_per_head_convariance_decomposition
 from tensor_list_save import save_tensor_list
 from concat_kv_cache import concat_kv_cache
 from tqdm import tqdm
