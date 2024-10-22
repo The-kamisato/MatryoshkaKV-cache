@@ -7,6 +7,8 @@ Code for [MAtryoshkaKV-cache](https://arxiv.org/abs/2410.14731).
 This project delivered LLaMA equipped with optimized orthogonal projections in `modeling_pacllama_trial.py`, and we conducted experiments by simply patching the base LLaMA implementation using this Python file.
 
 ## Training
+We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`
+
 During training, our patches are applied to [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory.git) at:
 - `LLaMA-Factory/src/llamafactory/model/custom_model/modeling_pcallama_trial.py`
 
