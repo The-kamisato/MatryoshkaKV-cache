@@ -176,10 +176,12 @@ if __name__ == "__main__":
     covariance_value_tensor = [[torch.tensor(0) for _ in range(num_heads)] for _ in range(layer_num)]
     mean_key_tensor = [[torch.tensor(0) for _ in range(num_heads)] for _ in range(layer_num)]
     mean_value_tensor = [[torch.tensor(0) for _ in range(num_heads)] for _ in range(layer_num)]
-
+    
+    key_states = torch.randn(1, 32, 157, 128).cuda()
+    value_states = torch.randn(1, 32, 157, 128).cuda()
     
     past_key_values = DynamicCache()
-    past_key_values.key_cache = [value_states for _ in range(32)]
+    past_key_values.key_cache = [key_states for _ in range(32)]
     past_key_values.value_cache = [value_states for _ in range(32)]
     
     past_key_values_list = [past_key_values for _ in range(200)]
