@@ -9,16 +9,29 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
 # Usage
 ## Installation
 1. Environment setup:
-
+   ```
+   conda create -n MatryoshkaKV python=3.10
+   conda activate MatryoshkaKV
+   ```
 2. Clone this repository and build from source:
-3. Install dependency:
    ```
-   print
+   git clone https://github.com/The-kamisato/MatryoshkaKV-cache
+   cd MatryoshkaKV-cache
    ```
-
-## Training
+4. Install dependency:
+   ```
+   pip install requirements.txt
+   ```
+## Initialization
 We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`
 
+You can calculate the initial parameters using PCA by executing the following command：
+
+```
+python cal_pcallama_init.py
+```
+
+## Training
 During training, our patches are applied to [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory.git) at:
 - `LLaMA-Factory/src/llamafactory/model/custom_model/modeling_pcallama_trial.py`
 
