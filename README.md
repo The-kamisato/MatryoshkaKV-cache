@@ -25,6 +25,12 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
 ## Initialization
 We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`. 
 The dataset used for initialization is downloaded according to [stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca.git).
+After downloading all of them, organize the data as follows:
+```
+├──LLaMA-Factory
+│   └──data
+│       └── alpaca_data_en_52k.json
+```
 
 You can calculate the initial parameters using PCA by executing the following command：
 
@@ -44,6 +50,13 @@ Our training scripts are under `LLaMA-Factory/scripts`.
 
 And our dataset for continual pre-training is downloaded from [RedPajama-Sample](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T-Sample). 
 
+After downloading all of them, organize the data as follows:
+```
+├──LLaMA-Factory
+│   └──data
+│       └── alpaca_data_en_52k.json
+│       └── RedPajama_Sample.json
+```
 ## Evaluation
 For evaluation, our patches are applied to [opencompass](https://github.com/open-compass/opencompass.git) at:
 - `opencompass/opencompass/models/custom_model`
