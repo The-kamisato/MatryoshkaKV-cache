@@ -23,12 +23,13 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
    pip install requirements.txt
    ```
 ## Initialization
-We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`
+We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`. 
+The dataset used for initialization is downloaded according to [stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca.git).
 
 You can calculate the initial parameters using PCA by executing the following command：
 
 ```
-python cal_pcallama_init.py
+python cal_pcallama_init.py --model_path [your llama2 checkpoint path] --data_path [your alpaca_en_52k json file path]
 ```
 
 ## Training
