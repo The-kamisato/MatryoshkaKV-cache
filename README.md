@@ -15,7 +15,7 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
    ```
 2. Clone this repository and build from source:
    ```
-   git clone https://github.com/The-kamisato/MatryoshkaKV-cache
+   git clone https://github.com/The-kamisato/MatryoshkaKV-cache.git
    cd MatryoshkaKV-cache
    ```
 4. Install dependency:
