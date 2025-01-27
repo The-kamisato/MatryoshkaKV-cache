@@ -20,7 +20,7 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
    ```
 4. Install dependency:
    ```
-   pip install requirements.txt
+   pip install -r requirements.txt
    ```
 ## Initialization
 We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`. 
