@@ -64,6 +64,13 @@ For evaluation, our patches are applied to [opencompass](https://github.com/open
 Additionally, modifications are made for loading Hugging Face models in:
 - `opencompass/opencompass/models/huggingface_above_v4_33.py`
 
+You can evaluate model performance on six benchmarks: HellaSwag, ARC-c, Arc-e, PIQA, WinoGrande, and CommonsenseQA by executing the following command (Referenced to [opencompass](https://github.com/open-compass/opencompass.git))：
+```
+cd opencompass
+python run.py --datasets hellaswag_ppl_a6e128 ARC_c_ppl ARC_e_ppl piqa_ppl_1cf9f0 winogrande_ppl_55a66e commonsenseqa_ppl_e51e32 --hf-type base --hf-path [your llama2 checkpoint path]  
+```
+
+
 # Performance
 
 ![result table](https://github.com/The-kamisato/MatryoshkaKV-cache/blob/main/figure/result_table.jpg)
