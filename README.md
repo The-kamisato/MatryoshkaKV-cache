@@ -64,6 +64,31 @@ For evaluation, our patches are applied to [opencompass](https://github.com/open
 Additionally, modifications are made for loading Hugging Face models in:
 - `opencompass/opencompass/models/huggingface_above_v4_33.py`
 
+First, you can refer to [opencompass](https://github.com/open-compass/opencompass.git) and download the dataset of six benchmarks: HellaSwag, ARC-c, Arc-e, PIQA, WinoGrande, and CommonsenseQA.
+Then, organize the data as follows:
+```
+├──opencompass
+│   └──configs
+│       └── datasets
+│             └── ARC_c
+│             └── ARC_e
+│             └── commonsenseqa
+│             └── hellaswag
+│             └── piqa
+│             └── winogrande
+│       └── ...
+│   └──data
+│       └── ARC
+│             └── ARC_c
+│             └── ARC_e
+│       └── commonsenseqa
+│       └── hellaswag
+│       └── piqa
+│       └── winogrande
+│   └──opencompass
+│       └── ...
+```
+
 You can evaluate model performance on six benchmarks: HellaSwag, ARC-c, Arc-e, PIQA, WinoGrande, and CommonsenseQA by executing the following command (Referenced to [opencompass](https://github.com/open-compass/opencompass.git))：
 ```
 cd opencompass
