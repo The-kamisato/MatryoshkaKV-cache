@@ -21,7 +21,6 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
 4. Install dependency:
    ```
    pip install -r requirements.txt
-   cd ..
    ```
 5. Install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory.git)
    ```
@@ -37,7 +36,6 @@ This project delivered LLaMA equipped with optimized orthogonal projections in `
    cd opencompass
    pip install -e .
    cd ..
-   cd MatryoshkaKV-cache
    ```
 ## Initialization
 We first initialize our orthogonal projections by PCA(Principal Component Analysis) running `cal_pcallama_init.py`. 
