@@ -24,7 +24,7 @@ from ...data import get_dataset, split_dataset
 from ...extras.ploting import plot_loss
 from ...model import load_model, load_tokenizer
 from ..trainer_utils import create_modelcard_and_push
-from .trainer import CustomTrainer, PcaLlamaTrainer, PcaLlamaDistillationTrainer, PcaGemmaDistillationTrainer
+from .trainer import CustomTrainer, PcaLlamaTrainer, PcaLlamaDistillationTrainer
 from .metric import ComputeMetrics
 
 
@@ -48,16 +48,6 @@ def run_pt(
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
     # Initialize our Trainer
-    # trainer = PcaGemmaDistillationTrainer(
-    #     model=model,
-    #     args=training_args,
-    #     finetuning_args=finetuning_args,
-    #     data_collator=data_collator,
-    #     callbacks=callbacks,
-    #     compute_metrics=ComputeMetrics(tokenizer) if training_args.predict_with_generate else None,
-    #     **tokenizer_module,
-    #     **split_dataset(dataset, data_args, training_args),
-    # )
 
     trainer = PcaLlamaDistillationTrainer(
         model=model,

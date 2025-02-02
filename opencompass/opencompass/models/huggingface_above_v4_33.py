@@ -166,16 +166,18 @@ class HuggingFacewithChatTemplate(BaseModel):
                  pad_token_id: Optional[int] = None,
                  fastchat_template: Optional[str] = None,
                  stop_words: Optional[str] = [],
+                 mkv_path: Optional[str] = None,
                  **other_kwargs):
-
+        
         self.logger = get_logger()
         self.path = path
         self.tokenizer_only = tokenizer_only
         self.template_parser = _get_meta_template(meta_template)
         self.max_seq_len = _get_possible_max_seq_len(max_seq_len, path)
+        self.mkv_path = mkv_path
         self._load_tokenizer(tokenizer_path or path, tokenizer_kwargs, pad_token_id)
         if not tokenizer_only:
-            self._load_model(path=path, kwargs=model_kwargs, peft_path=peft_path, peft_kwargs=peft_kwargs)
+            self._load_model(path=path, kwargs=model_kwargs, peft_path=peft_path, peft_kwargs=peft_kwargs, mkv_path=mkv_path)
         self.generation_kwargs = generation_kwargs
         self.fastchat_template = fastchat_template
         self.stop_words = list(set(stop_words + self._get_potential_stop_words(path)))
@@ -214,7 +216,7 @@ class HuggingFacewithChatTemplate(BaseModel):
             return
         raise ValueError('pad_token_id is not set for this tokenizer. Please set `pad_token_id={PAD_TOKEN_ID}` in model_cfg.')
 
-    def _load_model(self, path: str, kwargs: dict, peft_path: Optional[str] = None, peft_kwargs: dict = dict()):
+    def _load_model(self, path: str, kwargs: dict, peft_path: Optional[str] = None, peft_kwargs: dict = dict(), mkv_path: Optional[str] = None, key_truncate_index: Optional[int] = None, value_truncate_index: Optional[int] = None):
         from transformers import AutoModel, AutoModelForCausalLM
 
         DEFAULT_MODEL_KWARGS = dict(device_map='auto', trust_remote_code=True)
@@ -224,74 +226,16 @@ class HuggingFacewithChatTemplate(BaseModel):
         self.logger.debug(f'using model_kwargs: {model_kwargs}')
         
         try:
-            # print("loading custom pca_model")
-            # config = transformers.AutoConfig.from_pretrained(
-            #     "/liymai24/sjtu/bokai/PCA_kvcache/checkpoint/Llama-2-7b-hf", 
-            #     cache_dir=False,
-            # )                                  
-            # all_layers_mean_key_states = torch.load('/liymai24/sjtu/bokai/opencompass/opencompass/models/custom_model/per_head_data/piqa/all_layers_key_mean')
-            # all_layers_mean_value_states = torch.load('/liymai24/sjtu/bokai/opencompass/opencompass/models/custom_model/per_head_data/piqa/all_layers_value_mean')
-            # all_layers_key_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/opencompass/opencompass/models/custom_model/per_head_data/piqa/all_layers_key_states_eigenvectors_descending.pth')
-            # all_layers_value_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/opencompass/opencompass/models/custom_model/per_head_data/piqa/all_layers_value_states_eigenvectors_descending.pth')
-            # config.all_layers_mean_key_states = all_layers_mean_key_states
-            # config.all_layers_mean_value_states = all_layers_mean_value_states
-            # config.all_layers_key_unitary_transform_matrix = all_layers_key_states_eigenvectors_descending
-            # config.all_layers_value_unitary_transform_matrix = all_layers_value_states_eigenvectors_descending
-            # config.key_truncate_threshold = 0.0
-            # config.value_truncate_threshold = 0.0
-            
-            
-            # config.value_truncate_idx = [128]*32
-            
-            # config.value_truncate_idx[0] = 5
-            # config.value_truncate_idx[1] = 10
-            
-            # for i in range(18, 32):
-            #     config.value_truncate_idx[i] = 100
-            
-            # model_kwargs['torch_dtype'] = torch.float32
-            # print("truncate_threshold is set to:", config.value_truncate_idx)
-            # self.model = PcaLlamaForCausalLM.from_pretrained(
-            #     "/liymai24/sjtu/bokai/PCA_kvcache/checkpoint/Llama-2-7b-hf", 
-            #     config = config,
-            #     **model_kwargs
-            # )
-            # print("load over!")
-            
-
-            # model_kwargs['low_cpu_mem_usage'] = False
-            # model_kwargs.pop('device_map')
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/lora/piqa_baseline/train_only_lora_5e-05_debug
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/lora/piqa/train_lora_key_value_mean_iter2_ep4_piqa_init
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/lora/redpajama/train_all_heads_64_64_eval/checkpoint-6500
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_resume_all_heads_interleave_32_128_128_mixing_loss_1e-10/checkpoint-300
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_resume_all_heads_16_128_128_mixing_loss_1e-10/checkpoint-900
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_resume_all_heads_16_128_128_mixing_loss_1e-10/checkpoint-300
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_resume_all_heads_interleave_32_128_128_mixing_loss_1e-10/checkpoint-1200
-
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_only_proj_16_64_64_eval/checkpoint-1200
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_only_proj_wo_mean_16_64_64_eval/checkpoint-2400
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/lora/redpajama/train_all_heads_16_64_64_eval_5e-05
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_only_proj_32_64_64_eval
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_only_proj_16_64_64_eval
-            # /liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_only_proj_16_64_64_mistral
-
-            # self.model = load_from_lora_training(
-            #     pretrained_model_name_or_path = path,        # change when finetune on chat
-            #     checkpoint_dir = "/liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/lora/redpajama/train_all_heads_16_64_64_eval_5e-05",      # change
-            #     lora_trained=True,
-            #     train_key=False, 
-            #     train_value=False,
-            #     ofted=True,
-            # )
-            
+            print("mkv_path:", mkv_path)
             self.model = load_from_lora_training(
                 pretrained_model_name_or_path = path,        # change when finetune on chat
-                checkpoint_dir = "/liymai24/sjtu/bokai/LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama/train_only_proj_16_64_64_eval",      # change
+                checkpoint_dir = mkv_path,      # change
                 lora_trained=False,
                 train_key=False, 
                 train_value=False,
                 ofted=True,
+                key_truncate_index=key_truncate_index,
+                value_truncate_index=value_truncate_index,
             )
                       
             # self.model = AutoModelForCausalLM.from_pretrained(path, **model_kwargs)
@@ -399,6 +343,9 @@ class HuggingFaceBaseModel(HuggingFacewithChatTemplate):
                  max_seq_len: Optional[int] = None,
                  pad_token_id: Optional[int] = None,
                  stop_words: Optional[str] = [],
+                 mkv_path: Optional[str] = None,
+                 key_truncate_index: Optional[int] = None,
+                 value_truncate_index: Optional[int] = None,
                  **other_kwargs):
 
         self.logger = get_logger()
@@ -408,10 +355,18 @@ class HuggingFaceBaseModel(HuggingFacewithChatTemplate):
         self.max_seq_len = _get_possible_max_seq_len(max_seq_len, path)
         self._load_tokenizer(tokenizer_path or path, tokenizer_kwargs, pad_token_id)
         if not tokenizer_only:
-            self._load_model(path=path, kwargs=model_kwargs, peft_path=peft_path, peft_kwargs=peft_kwargs)
+            self._load_model(
+                path=path, 
+                kwargs=model_kwargs, 
+                peft_path=peft_path, 
+                peft_kwargs=peft_kwargs, 
+                mkv_path=mkv_path, 
+                key_truncate_index=key_truncate_index, 
+                value_truncate_index=value_truncate_index
+            )
         self.generation_kwargs = generation_kwargs
         self.stop_words = stop_words
-
+        
         for k, v in other_kwargs.items():
             if v is not None:
                 self.logger.warning(f'Unused argument {k}={v}')

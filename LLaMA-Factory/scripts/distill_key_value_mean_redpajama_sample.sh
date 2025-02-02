@@ -23,7 +23,7 @@ accelerate launch \
     --learning_rate 5e-05 \
     --num_train_epochs 1 \
     --max_samples 100000000 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 1 \
     --gradient_accumulation_steps 16 \
     --gradient_checkpointing True \
     --lr_scheduler_type cosine \

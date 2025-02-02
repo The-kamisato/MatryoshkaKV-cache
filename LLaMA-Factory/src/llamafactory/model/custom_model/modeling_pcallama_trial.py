@@ -39,41 +39,13 @@ class ReusableIterator:
             self.iterator = iter(self.iterable_func())  # 重置迭代器
             return next(self.iterator)
 
-# import wandb
-# wandb.login()
-# wandb.init(project="lora_pcallama")
 
-# original_all_layers_mean_key_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/piqa/all_layers_key_mean.pth')
-# original_all_layers_mean_value_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/piqa/all_layers_value_mean.pth')
-# original_all_layers_key_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/piqa/all_layers_key_states_eigenvectors_descending.pth')
-# original_all_layers_value_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/piqa/all_layers_value_states_eigenvectors_descending.pth')
 
-# original_all_layers_mean_key_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_key_mean.pth')
-# original_all_layers_mean_value_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_value_mean.pth')
-# original_all_layers_key_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_key_states_eigenvectors_descending.pth')
-# original_all_layers_value_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_value_states_eigenvectors_descending.pth')
+original_all_layers_mean_key_states = torch.load('alpaca_PCA_init/all_layers_key_mean.pth')
+original_all_layers_mean_value_states = torch.load('alpaca_PCA_init/all_layers_value_mean.pth')
+original_all_layers_key_states_eigenvectors_descending = torch.load('alpaca_PCA_init/all_layers_key_states_eigenvectors_descending.pth')
+original_all_layers_value_states_eigenvectors_descending = torch.load('alpaca_PCA_init/all_layers_value_states_eigenvectors_descending.pth')
 
-# original_all_layers_mean_key_states = torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_key_mean.pth')
-# original_all_layers_mean_value_states = torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_value_mean.pth')
-# original_all_layers_key_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_key_states_eigenvectors_descending.pth')
-# original_all_layers_value_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_value_states_eigenvectors_descending.pth')
-
-# original_all_layers_mean_key_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/mixing/all_layers_key_mean.pth')
-# original_all_layers_mean_value_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/mixing/all_layers_value_mean.pth')
-# original_all_layers_key_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/mixing/all_layers_key_states_eigenvectors_descending.pth')
-# original_all_layers_value_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/mixing/all_layers_value_states_eigenvectors_descending.pth')
-
-original_all_layers_mean_key_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/gsm8k/all_layers_key_mean.pth')
-original_all_layers_mean_value_states = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/gsm8k/all_layers_value_mean.pth')
-original_all_layers_key_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/gsm8k/all_layers_key_states_eigenvectors_descending.pth')
-original_all_layers_value_states_eigenvectors_descending = torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/gsm8k/all_layers_value_states_eigenvectors_descending.pth')
-
-# def change_label_piqa(input_ids, label):
-#     end_index = ((label == 350) | (label == 319)).nonzero(as_tuple=True)[0].item()
-#     updated_label = label.clone()
-#     updated_label[:end_index] = torch.where(updated_label[:end_index] == -100, input_ids[1:end_index+1], updated_label[:end_index])
-
-#     return updated_label
 
 def repeat_unitary_transform(unitary_transform: torch.Tensor, n_rep: int):
     num_key_value_heads, head_dim1, head_dim2 = unitary_transform.shape
@@ -159,17 +131,6 @@ def load_from_lora_training(
         *model_args,
         **kwargs
     ).to(device)
-    
-    # model = PcaLlamaForCausalLM.from_pretrained(
-    #     pretrained_model_name_or_path,
-    #     all_layers_mean_key_states = original_all_layers_mean_key_states, 
-    #     all_layers_mean_value_states = original_all_layers_mean_value_states,
-    #     all_layers_key_states_eigenvectors_descending = original_all_layers_key_states_eigenvectors_descending,
-    #     all_layers_value_states_eigenvectors_descending = original_all_layers_value_states_eigenvectors_descending,
-    #     config=config,
-    #     *model_args,
-    #     **kwargs
-    # ).to(device)
 
     print("load PeftModel")
     model = PeftModel.from_pretrained(model, checkpoint_dir)
@@ -251,97 +212,14 @@ def resume_from_lora_training(
         *model_args,
         **kwargs
     ).to(device)
-    
-    # adapter_subdirs = (
-    #     [
-    #         folder_name
-    #         for folder_name in os.listdir(resume_from_checkpoint)
-    #         if os.path.isdir(os.path.join(resume_from_checkpoint, folder_name))
-    #         and (
-    #             os.path.isfile(os.path.join(resume_from_checkpoint, folder_name, ADAPTER_WEIGHTS_NAME))
-    #             or os.path.isfile(os.path.join(resume_from_checkpoint, folder_name, ADAPTER_SAFE_WEIGHTS_NAME))
-    #         )
-    #     ]
-    #     if os.path.isdir(resume_from_checkpoint)
-    #     else []
-    # )
-
-    # if hasattr(model, "active_adapters"):
-    #     active_adapters = model.active_adapters
-    #     active_adapter = active_adapters[0]
-    # else:
-    #     active_adapter = model.active_adapter
-
-    # if adapter_subdirs:
-    #     for subdir_name in adapter_subdirs:
-    #         peft_id = os.path.join(resume_from_checkpoint, subdir_name)
-    #         model.load_adapter(peft_id, subdir_name, is_trainable=(subdir_name == active_adapter))
-    #     model.set_adapter(active_adapter)
-    # else:
-    #     model.load_adapter(resume_from_checkpoint, active_adapter, is_trainable=True)
 
     return model
-
-
-def merge_base_model_outputs_with_past(outputs: List[BaseModelOutputWithPast]) -> BaseModelOutputWithPast:
-    """
-    Merge a list of BaseModelOutputWithPast objects along the batch dimension.
-
-    Args:
-        outputs (List[BaseModelOutputWithPast]): List of BaseModelOutputWithPast objects to merge.
-
-    Returns:
-        BaseModelOutputWithPast: A single BaseModelOutputWithPast object with merged tensors.
-    """
-    last_hidden_states = torch.cat([output.last_hidden_state for output in outputs], dim=0) if outputs[0].last_hidden_state is not None else None
-    
-    past_key_values = None
-    if outputs[0].past_key_values is not None:
-        # Assuming all outputs have the same number of layers and past_key_values structure
-        past_key_values = tuple(
-            tuple(torch.cat([output.past_key_values[layer][i] for output in outputs], dim=0) for i in range(len(outputs[0].past_key_values[0])))
-            for layer in range(len(outputs[0].past_key_values))
-        )
-
-    hidden_states = None
-    if outputs[0].hidden_states is not None:
-        hidden_states = tuple(torch.cat([output.hidden_states[i] for output in outputs], dim=0) for i in range(len(outputs[0].hidden_states)))
-
-    attentions = None
-    if outputs[0].attentions is not None:
-        attentions = tuple(torch.cat([output.attentions[i] for output in outputs], dim=0) for i in range(len(outputs[0].attentions)))
-
-    return BaseModelOutputWithPast(
-        last_hidden_state=last_hidden_states,
-        past_key_values=past_key_values,
-        hidden_states=hidden_states,
-        attentions=attentions
-    )
 
 # Example usage
 # outputs = [output1, output2, ...]
 # merged_output = merge_base_model_outputs_with_past(outputs)
 
 
-def check_tensor(tensor, step_name):
-    if not torch.is_tensor(tensor):
-        return
-
-    has_nan = torch.isnan(tensor).any().item()
-    has_inf = torch.isinf(tensor).any().item()
-    inf_mask = torch.isinf(tensor)
-    inf_indices = torch.nonzero(inf_mask)
-
-    # has_neg = (tensor < 0).any().item()
-
-    if has_nan or has_inf:
-        print(f"Step {step_name}:")
-        if has_nan:
-            print("  Contains NaN")
-        if has_inf:
-            print("  Contains Inf", inf_indices)
-        # if has_neg:
-        #     print("  Contains negative values")
             
 def unitary_transform(attention_states: torch.Tensor, unitary_transform_matrix: torch.Tensor, mean_states: torch.Tensor = torch.tensor(0), truncate_index: int = 128):
     transformed_attention_states = torch.einsum('bhld,hdc->bhlc', (attention_states - mean_states), unitary_transform_matrix[..., :truncate_index])
@@ -519,8 +397,6 @@ class PcaLlamaAttention(LlamaAttention):
         # key_unitary_transform_matrix = self.key_unitary_transform_weights if self.train_key else self.key_unitary_transform_matrix
         # value_unitary_transform_matrix = self.value_unitary_transform_weights if self.train_value else self.value_unitary_transform_matrix
 
-        check_tensor(key_unitary_transform_matrix, 'key')
-        check_tensor(value_unitary_transform_matrix, 'value')
         # if self.training and self.merged_weights and self.train_value:             # when training, we need to update the weights of output_proj from time to time
         #     self.update_o_proj_weights(mean_value_states, value_unitary_transform_matrix)
             

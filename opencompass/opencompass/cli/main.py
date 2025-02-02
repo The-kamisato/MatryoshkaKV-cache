@@ -190,7 +190,9 @@ def parse_hf_args(hf_parser):
     hf_parser.add_argument('--hf-num-gpus', type=int, default=1, help='The number of GPUs for the HuggingFace model passed via cli')
     hf_parser.add_argument('--pad-token-id', type=int, help='The pad token id for the HuggingFace model')
     hf_parser.add_argument('--stop-words', nargs='+', default=[], help='The stop words for the HuggingFace model')
-
+    hf_parser.add_argument('--mkv-path', type=str, default='ckpt/best_ckpt', help='Your distilled model checkpoint pattern')
+    hf_parser.add_argument('--key-truncate-index', default=None, help='Your key truncate index')
+    hf_parser.add_argument('--value-truncate-index', default=None, help='Your value truncate index')
 
 def parse_custom_dataset_args(custom_dataset_parser):
     """These args are all for the quick construction of custom datasets."""

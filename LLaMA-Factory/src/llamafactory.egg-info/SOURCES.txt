@@ -1,7 +1,4 @@
-LICENSE
-MANIFEST.in
 README.md
-pyproject.toml
 requirements.txt
 setup.py
 src/llamafactory/__init__.py
@@ -58,6 +55,7 @@ src/llamafactory/hparams/model_args.py
 src/llamafactory/hparams/parser.py
 src/llamafactory/model/__init__.py
 src/llamafactory/model/adapter.py
+src/llamafactory/model/loader copy.py
 src/llamafactory/model/loader.py
 src/llamafactory/model/patcher.py
 src/llamafactory/model/model_utils/__init__.py
@@ -88,7 +86,9 @@ src/llamafactory/train/ppo/ppo_utils.py
 src/llamafactory/train/ppo/trainer.py
 src/llamafactory/train/ppo/workflow.py
 src/llamafactory/train/pt/__init__.py
+src/llamafactory/train/pt/metric.py
 src/llamafactory/train/pt/trainer.py
+src/llamafactory/train/pt/workflow copy.py
 src/llamafactory/train/pt/workflow.py
 src/llamafactory/train/rm/__init__.py
 src/llamafactory/train/rm/metric.py
@@ -97,6 +97,7 @@ src/llamafactory/train/rm/workflow.py
 src/llamafactory/train/sft/__init__.py
 src/llamafactory/train/sft/metric.py
 src/llamafactory/train/sft/trainer.py
+src/llamafactory/train/sft/workflow copy.py
 src/llamafactory/train/sft/workflow.py
 src/llamafactory/webui/__init__.py
 src/llamafactory/webui/chatter.py

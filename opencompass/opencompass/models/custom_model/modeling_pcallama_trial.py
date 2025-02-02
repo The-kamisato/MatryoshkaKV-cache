@@ -34,10 +34,6 @@ def load_from_txt(txt_path):
     tensor = torch.tensor(data_list).view(32, 32).long()
     return tensor
 
-# cal_key_truncate_index = load_from_txt("/liymai24/sjtu/bokai/PCA_kvcache/rate/llama2/siqa/key_sample1_interval32_rate0.5_T1.txt")
-# cal_value_truncate_index = load_from_txt("/liymai24/sjtu/bokai/PCA_kvcache/rate/llama2/siqa/value_sample1_interval32_rate0.5_T1.txt")
-# cal_key_truncate_index = load_from_txt("/liymai24/sjtu/bokai/PCA_kvcache/rate/llama2/piqa/key_sample1_interval32_rate0.75_T1.txt")
-# cal_value_truncate_index = load_from_txt("/liymai24/sjtu/bokai/PCA_kvcache/rate/llama2/piqa/value_sample1_interval32_rate0.75_T1.txt")
 cal_key_truncate_index = torch.full((32, 32), 64, dtype = torch.long)
 cal_value_truncate_index = torch.full((32, 32), 64, dtype = torch.long)
 
@@ -49,6 +45,8 @@ def load_from_lora_training(
         train_key=True, 
         train_value=True, 
         device='cuda', 
+        key_truncate_index=None,
+        value_truncate_index=None,
         *model_args, 
         **kwargs
     ):
@@ -118,23 +116,13 @@ def load_from_lora_training(
         all_layers_value_states_eigenvectors_descending = all_layers_value_states_eigenvectors_descending,
         train_key=train_key,
         train_value=train_value,
+        key_truncate_index=key_truncate_index,
+        value_truncate_index=value_truncate_index,
         config=config,
         *model_args,
         **kwargs
     ).to(device)
 
-
-    
-    # model = PcaLlamaForCausalLM.from_pretrained(
-    #     pretrained_model_name_or_path,
-    #     all_layers_mean_key_states = original_all_layers_mean_key_states, 
-    #     all_layers_mean_value_states = original_all_layers_mean_value_states,
-    #     all_layers_key_states_eigenvectors_descending = original_all_layers_key_states_eigenvectors_descending,
-    #     all_layers_value_states_eigenvectors_descending = original_all_layers_value_states_eigenvectors_descending,
-    #     config=config,
-    #     *model_args,
-    #     **kwargs
-    # ).to(device)
     
     if lora_trained:
         print("load PeftModel")
@@ -146,65 +134,6 @@ def load_from_lora_training(
     # 返回自定义模型实例
     return model
 
-def merge_base_model_outputs_with_past(outputs: List[BaseModelOutputWithPast]) -> BaseModelOutputWithPast:
-    """
-    Merge a list of BaseModelOutputWithPast objects along the batch dimension.
-
-    Args:
-        outputs (List[BaseModelOutputWithPast]): List of BaseModelOutputWithPast objects to merge.
-
-    Returns:
-        BaseModelOutputWithPast: A single BaseModelOutputWithPast object with merged tensors.
-    """
-    last_hidden_states = torch.cat([output.last_hidden_state for output in outputs], dim=0) if outputs[0].last_hidden_state is not None else None
-    
-    past_key_values = None
-    if outputs[0].past_key_values is not None:
-        # Assuming all outputs have the same number of layers and past_key_values structure
-        past_key_values = tuple(
-            tuple(torch.cat([output.past_key_values[layer][i] for output in outputs], dim=0) for i in range(len(outputs[0].past_key_values[0])))
-            for layer in range(len(outputs[0].past_key_values))
-        )
-
-    hidden_states = None
-    if outputs[0].hidden_states is not None:
-        hidden_states = tuple(torch.cat([output.hidden_states[i] for output in outputs], dim=0) for i in range(len(outputs[0].hidden_states)))
-
-    attentions = None
-    if outputs[0].attentions is not None:
-        attentions = tuple(torch.cat([output.attentions[i] for output in outputs], dim=0) for i in range(len(outputs[0].attentions)))
-
-    return BaseModelOutputWithPast(
-        last_hidden_state=last_hidden_states,
-        past_key_values=past_key_values,
-        hidden_states=hidden_states,
-        attentions=attentions
-    )
-
-# Example usage
-# outputs = [output1, output2, ...]
-# merged_output = merge_base_model_outputs_with_past(outputs)
-
-
-def check_tensor(tensor, step_name):
-    if not torch.is_tensor(tensor):
-        return
-
-    has_nan = torch.isnan(tensor).any().item()
-    has_inf = torch.isinf(tensor).any().item()
-    inf_mask = torch.isinf(tensor)
-    inf_indices = torch.nonzero(inf_mask)
-
-    # has_neg = (tensor < 0).any().item()
-
-    if has_nan or has_inf:
-        print(f"Step {step_name}:")
-        if has_nan:
-            print("  Contains NaN")
-        if has_inf:
-            print("  Contains Inf", inf_indices)
-        # if has_neg:
-        #     print("  Contains negative values")
 
 def repeat_unitary_transform(unitary_transform: torch.Tensor, n_rep: int):
     num_key_value_heads, head_dim1, head_dim2 = unitary_transform.shape
@@ -713,6 +642,9 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         self.all_layers_value_unitary_transform_matrix = config.all_layers_value_unitary_transform_matrix
         self.train_key = config.train_key
         self.train_value = config.train_value
+        self.key_truncate_index = config.key_truncate_index
+        self.value_truncate_index = config.value_truncate_index
+
 
         self.model = PcaLlamaModel(
             config, 
@@ -824,6 +756,8 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         all_layers_value_states_eigenvectors_descending = None,
         train_key = True,
         train_value = True,  
+        key_truncate_index = None,
+        value_truncate_index = None,
         *model_args, 
         **kwargs):
 
@@ -831,20 +765,17 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         if config is None:
             config = AutoConfig.from_pretrained(pretrained_model_name_or_path, **kwargs)
 
-        config.all_layers_mean_key_states = all_layers_mean_key_states if all_layers_mean_key_states is not None else torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_key_mean.pth')
-        config.all_layers_mean_value_states = all_layers_mean_value_states if all_layers_mean_value_states is not None else torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_value_mean.pth')
-        config.all_layers_key_unitary_transform_matrix = all_layers_key_states_eigenvectors_descending if all_layers_key_states_eigenvectors_descending is not None else torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_key_states_eigenvectors_descending.pth')
-        config.all_layers_value_unitary_transform_matrix = all_layers_value_states_eigenvectors_descending if all_layers_value_states_eigenvectors_descending is not None else torch.load('/liymai24/sjtu/bokai/PCA_kvcache/toy_experiments/per_head_data/alpaca_mistral/all_layers_value_states_eigenvectors_descending.pth')
+        config.all_layers_mean_key_states = all_layers_mean_key_states 
+        config.all_layers_mean_value_states = all_layers_mean_value_states 
+        config.all_layers_key_unitary_transform_matrix = all_layers_key_states_eigenvectors_descending 
+        config.all_layers_value_unitary_transform_matrix = all_layers_value_states_eigenvectors_descending 
 
-        # config.all_layers_mean_key_states = all_layers_mean_key_states if all_layers_mean_key_states is not None else torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_key_mean.pth')
-        # config.all_layers_mean_value_states = all_layers_mean_value_states if all_layers_mean_value_states is not None else torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_value_mean.pth')
-        # config.all_layers_key_unitary_transform_matrix = all_layers_key_states_eigenvectors_descending if all_layers_key_states_eigenvectors_descending is not None else torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_key_states_eigenvectors_descending.pth')
-        # config.all_layers_value_unitary_transform_matrix = all_layers_value_states_eigenvectors_descending if all_layers_value_states_eigenvectors_descending is not None else torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_value_states_eigenvectors_descending.pth')
-
-        torch.load('/liymai24/sjtu/bokai/LLaMA-Factory/src/llamafactory/model/custom_model/per_head_data/alpaca/all_layers_key_mean.pth')
         config.train_key = train_key
         config.train_value = train_value
-        # 使用父类的方法加载模型
+
+        config.key_truncate_index = key_truncate_index
+        config.value_truncate_index = value_truncate_index
+
         model = super(PcaLlamaForCausalLM, cls).from_pretrained(
             pretrained_model_name_or_path,
             config=config,
@@ -863,8 +794,6 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.LongTensor] = None,
         past_key_values: Optional[Union[Cache, List[torch.FloatTensor]]] = None,
-        # key_truncate_index: Union[int, List[int], torch.LongTensor] = torch.full((32, 32), 64, dtype=torch.long),                    # change this
-        # value_truncate_index: Union[int, List[int], torch.LongTensor] = torch.full((32, 32), 64, dtype=torch.long),
         key_truncate_index: Union[int, List[int], torch.LongTensor] = cal_key_truncate_index,                    # change this
         value_truncate_index: Union[int, List[int], torch.LongTensor] = cal_value_truncate_index,
         inputs_embeds: Optional[torch.FloatTensor] = None,
@@ -900,7 +829,22 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         >>> tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
         "Hey, are you conscious? Can you talk to me?\nI'm not conscious, but I can talk to you."
         ```"""
-        key_truncate_index, value_truncate_index = key_truncate_index.cpu(), value_truncate_index.cpu()
+
+        if self.key_truncate_index:
+            try:
+                key_truncate_index = torch.full((32, 32), int(self.key_truncate_index), dtype = torch.long).cpu()
+            except:
+                key_truncate_index = load_from_txt(self.key_truncate_index).cpu()
+        else:
+            raise ValueError("You must pass in a key truncate index")
+
+        if self.value_truncate_index:
+            try:
+                value_truncate_index = torch.full((32, 32), int(self.value_truncate_index), dtype = torch.long).cpu()
+            except:
+                value_truncate_index = load_from_txt(self.value_truncate_index).cpu()
+        else:
+            raise ValueError("You must pass in a value truncate index")
         
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (

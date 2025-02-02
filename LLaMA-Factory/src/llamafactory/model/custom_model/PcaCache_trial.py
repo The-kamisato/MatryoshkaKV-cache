@@ -44,17 +44,9 @@ class PcaDynamicCache(DynamicCache):
             for state, trunc_idx in zip(reduced_attention_states, truncate_index)
         ]
 
-        # print(truncate_index)
-        # print(len(padded_states))
-        # for i in padded_states:
-        #     print(i.shape)
         attention_states = torch.stack(padded_states, dim=1)
         return attention_states
 
-        # attention_states = torch.zeros(bsz, len(reduced_attention_states), seq_len, max_dim).to(reduced_attention_states[0].device)
-        # for head_idx, (state, trunc_idx) in enumerate(zip(reduced_attention_states, truncate_index)):
-        #     attention_states[:, head_idx, :, :trunc_idx] = state
-        # return attention_states
 
     def update(
         self,
@@ -128,7 +120,3 @@ class PcaDynamicCache(DynamicCache):
                 key_states, value_states = past_key_values[layer_idx]
                 cache.update(key_states, value_states, layer_idx)
         return cache
-
-# if __name__ == "__main__":
-#     past_key_values = PcaDynamicCache.from_legacy_cache(head_dim = 4096 // 32, past_key_values = None)
-#     _, _ = past_key_values.update()

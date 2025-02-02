@@ -167,13 +167,6 @@ def load_model(
         else:
             # model = PcaGemmaForCausalLM.from_pretrained(**init_kwargs)
             model = PcaLlamaForCausalLM.from_pretrained(**init_kwargs)
-        # if training_args.resume_from_checkpoint is not None:
-            # if model_args.pre_finetuned_checkpoint_dir is not None:
-            #     model = resume_from_lora_training(
-            #         resume_from_checkpoint = training_args.resume_from_checkpoint,
-            #         **init_kwargs,
-            #     )
-            # else:
 
         if model_args.mixture_of_depths == "convert":
             model = convert_pretrained_model_to_mod(model, config, model_args)

@@ -3,6 +3,8 @@ from typing import Callable, List, Optional, Type, Union
 from mmengine.registry import METRICS as MMENGINE_METRICS
 from mmengine.registry import Registry as OriginalRegistry
 
+def sum(a, b):
+    return a + b
 
 class Registry(OriginalRegistry):
 
