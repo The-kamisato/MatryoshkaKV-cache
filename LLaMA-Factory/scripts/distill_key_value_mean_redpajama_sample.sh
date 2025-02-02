@@ -1,14 +1,14 @@
 ###  device, port, batch_size, dataset, output_dir, model.py(idx, load)
 export CUDA_VISIBLE_DEVICES=0,1,2,3
-export WANDB_DISABLED=true
+
 
 accelerate launch \
-    --config_file /liymai24/sjtu/bokai/LLaMA-Factory/examples/accelerate/single_config.yaml \
+    --config_file LLaMA-Factory/examples/accelerate/single_config.yaml \
     --main_process_port 29506 \
-    /liymai24/sjtu/bokai/LLaMA-Factory/src/train.py \
+    LLaMA-Factory/src/train.py \
     --stage pt \
     --do_train True \
-    --model_name_or_path /liymai24/sjtu/bokai/PCA_kvcache/checkpoint/Llama-2-7b-hf \
+    --model_name_or_path meta-llama/Llama-2-7b-hf \
     --low_cpu_mem_usage False \
     --preprocessing_num_workers 16 \
     --ddp_find_unused_parameters False \
@@ -37,7 +37,7 @@ accelerate launch \
     --warmup_steps 100 \
     --optim adamw_torch \
     --packing False \
-    --output_dir saves/LLaMA-7B/distillation/redpajama/train_only_proj_32_64_64_eval \
+    --output_dir saves/LLaMA-7B/distillation/redpajama/ditillation_ckpt \
     --bf16 True \
     --plot_loss True \
     --ddp_timeout 180000000 \
