@@ -45,13 +45,22 @@ After downloading all of them, organize the data as follows:
 ├──LLaMA-Factory
 │   └──data
 │       └── alpaca_data_en_52k.json
+│       └── alpaca_en_demo.json
 ```
 
-You can calculate the initial parameters using PCA by executing the following command：
+You can calculate the initial parameters using PCA on `alpaca_data_en_52k` by executing the following command：
 
 ```
 python cal_pcallama_init.py --model_path [your llama2 checkpoint path] --data_path [your alpaca_en_52k json file path]
 ```
+
+You can also use `alpaca_en_demo` as a substitute for `alpaca_data_en_52k` by executing the following command, as `alpaca_en_demo` is a subset of `alpaca_data_en_52k`.
+
+```
+python cal_pcallama_init.py --model_path [your llama2 checkpoint path] --data_path [your alpaca_en_demo json file path]
+```
+
+The parameters are saved in folder `alpaca_PCA_init`.
 
 ## Training
 During training, our patches are applied to [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory.git) at:
@@ -59,7 +68,6 @@ During training, our patches are applied to [LLaMA-Factory](https://github.com/h
 
 Furthermore, due to the use of a distillation objective, we deliver our custom trainer `PcaLlamaDistillationTrainer` and  `PcaLlamaTrainer` at:
 - `LLaMA-Factory/src/llamafactory/train/pt/trainer.py`
-- `LLaMA-Factory/src/llamafactory/train/sft/trainer.py`
 
 Our training scripts are under `LLaMA-Factory/scripts`. 
 
@@ -70,8 +78,20 @@ After downloading all of them, organize the data as follows:
 ├──LLaMA-Factory
 │   └──data
 │       └── alpaca_data_en_52k.json
+│       └── alpaca_en_demo.json
 │       └── RedPajama_Sample.json
 ```
+
+You can continue pre-train LLaMA2 equipped with orthogonal projections by executing the following command:
+
+```
+cd LLaMA-Factory
+bash scripts/distill_key_value_mean_redpajama_sample.sh
+```
+
+You can modify certain parameters in the `distill_key_value_mean_redpajama_sample.sh` file, such as the checkpoint save path. 
+The default path is `LLaMA-Factory/saves/LLaMA-7B/distillation/redpajama`.
+
 ## Evaluation
 For evaluation, our patches are applied to [opencompass](https://github.com/open-compass/opencompass.git) at:
 - `opencompass/opencompass/models/custom_model`
@@ -107,7 +127,13 @@ Then, organize the data as follows:
 You can evaluate model performance on six benchmarks: HellaSwag, ARC-c, Arc-e, PIQA, WinoGrande, and CommonsenseQA by executing the following command (Referenced to [opencompass](https://github.com/open-compass/opencompass.git))：
 ```
 cd opencompass
-python run.py --datasets hellaswag_ppl_a6e128 ARC_c_ppl ARC_e_ppl piqa_ppl_1cf9f0 winogrande_ppl_55a66e commonsenseqa_ppl_e51e32 --hf-type base --hf-path [your llama2 checkpoint path]  
+python run.py \
+--datasets hellaswag_ppl_a6e128 ARC_c_ppl ARC_e_ppl piqa_ppl_1cf9f0 winogrande_ppl_55a66e commonsenseqa_ppl_e51e32 \
+--hf-type base \
+--hf-path /liymai24/sjtu/bokai/PCA_kvcache/checkpoint/Llama-2-7b-hf \
+--mkv-path [your continue pre-training checkpoint path] \
+--key-truncate-index [The rank of projections of key states] \
+--value-truncate-index [The rank of projections of value states] \
 ```
 
 
