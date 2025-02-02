@@ -436,8 +436,8 @@ class PcaLlamaDistillationTrainer(PcaLlamaTrainer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         print("Loading source model:")
-        self.source_model_config = AutoConfig.from_pretrained("/liymai24/sjtu/bokai/PCA_kvcache/checkpoint/Llama-2-7b-hf", cache_dir=False)
-        self.source_model = LlamaForCausalLM.from_pretrained("/liymai24/sjtu/bokai/PCA_kvcache/checkpoint/Llama-2-7b-hf", torch_dtype=torch.bfloat16).to(self.model.device)
+        self.source_model_config = AutoConfig.from_pretrained("meta-llama/Llama-2-7b-hf", cache_dir=False)
+        self.source_model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf", torch_dtype=torch.bfloat16).to(self.model.device)
         print("Load over")
     
     def compute_loss(self, model, inputs, return_outputs=False, T=1.0, soft_target_loss_weight=0.25, ce_loss_weight=0.75):
