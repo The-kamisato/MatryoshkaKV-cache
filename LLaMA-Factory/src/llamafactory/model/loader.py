@@ -21,11 +21,6 @@ from transformers import Seq2SeqTrainingArguments
 from trl import AutoModelForCausalLMWithValueHead
 
 from .custom_model.modeling_pcallama_trial import PcaLlamaForCausalLM, augment_llama_with_unitary_transform, resume_from_lora_training
-from .custom_model.modeling_pcagemma import PcaGemmaForCausalLM
-# from .custom_model.modeling_pcallama_new_ver import PcaLlamaForCausalLM, augment_llama_with_unitary_transform, resume_from_lora_training
-
-# from .custom_model.modeling_pcallama_wo_ortho import PcaLlamaForCausalLM, augment_llama_with_unitary_transform, load_from_lora_training
-# from .custom_model.modeling_pcallama_penalty import PcaLlamaForCausalLM, augment_llama_with_unitary_transform, load_from_lora_training
 from ..extras.logging import get_logger
 from ..extras.misc import count_parameters, try_download_model_from_ms
 from .adapter import init_adapter
@@ -165,7 +160,6 @@ def load_model(
         elif model_args.train_from_scratch:
             model = AutoModelForCausalLM.from_config(config)
         else:
-            # model = PcaGemmaForCausalLM.from_pretrained(**init_kwargs)
             model = PcaLlamaForCausalLM.from_pretrained(**init_kwargs)
 
         if model_args.mixture_of_depths == "convert":
