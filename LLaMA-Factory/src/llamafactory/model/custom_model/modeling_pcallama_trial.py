@@ -36,7 +36,7 @@ class ReusableIterator:
         try:
             return next(self.iterator)
         except StopIteration:
-            self.iterator = iter(self.iterable_func())  # 重置迭代器
+            self.iterator = iter(self.iterable_func())  
             return next(self.iterator)
 
 
@@ -138,7 +138,7 @@ def load_from_lora_training(
     model = model.merge_and_unload()
     print('Model is loaded...')
 
-    # 返回自定义模型实例
+
     return model
 
 
@@ -262,14 +262,6 @@ class PcaLlamaAttention(LlamaAttention):
         self.mean_value_weights = nn.Parameter(mean_value_states_tensor) if train_value else None 
         self.key_unitary_transform_weights = nn.Parameter(self.inverse_orthogonal_(key_unitary_transform_matrix_tensor, orthogonal_type='cayley')) if train_key else None       
         self.value_unitary_transform_weights = nn.Parameter(self.inverse_orthogonal_(value_unitary_transform_matrix_tensor, orthogonal_type='cayley')) if train_value else None
-        
-        # self.key_unitary_transform_weights = nn.Parameter(key_unitary_transform_matrix_tensor) if train_key else None       
-        # self.value_unitary_transform_weights = nn.Parameter(value_unitary_transform_matrix_tensor) if train_value else None
-        
-        # self.mean_key_weights = nn.Parameter(torch.randn(1, 32, 1, 128)) if train_key else None
-        # self.mean_value_weights = nn.Parameter(torch.randn(1, 32, 1, 128)) if train_value else None 
-        # self.key_unitary_transform_weights = nn.Parameter(self.inverse_orthogonal_(torch.randn(32, 128, 128), orthogonal_type='cayley')) if train_key else None       
-        # self.value_unitary_transform_weights = nn.Parameter(self.inverse_orthogonal_(torch.randn(32, 128, 128), orthogonal_type='cayley')) if train_value else None
       
         self.merged_weights = False
         
@@ -645,9 +637,7 @@ class PcaLlamaModel(LlamaModel):
             inputs_embeds = self.embed_tokens(input_ids)
 
         return_legacy_cache = False
-        
-        # if past_key_values is not None:
-        #     print(isinstance(past_key_values, PcaDynamicCache))
+
 
         if use_cache and not isinstance(past_key_values, Cache):  # kept for BC (non `Cache` `past_key_values` inputs), here past_key_values is None, so after this building an empty 
             past_key_values = PcaDynamicCache.from_legacy_cache(head_dim = self.config.hidden_size // self.config.num_attention_heads, past_key_values = past_key_values)
@@ -676,7 +666,7 @@ class PcaLlamaModel(LlamaModel):
             if output_hidden_states:
                 all_hidden_states += (hidden_states,)
 
-            # print("before layer_forward", isinstance(past_key_values, PcaDynamicCache))
+    
             if self.gradient_checkpointing and self.training:
                 layer_outputs = self._gradient_checkpointing_func(
                     decoder_layer.__call__,
@@ -702,12 +692,12 @@ class PcaLlamaModel(LlamaModel):
                     use_cache=use_cache,
                     cache_position=cache_position,
                 )
-            # print("after layer_forward", isinstance(past_key_values, PcaDynamicCache))
+           
             hidden_states = layer_outputs[0]
 
             if use_cache:
                 next_decoder_cache = layer_outputs[2 if output_attentions else 1]
-            # print("next_decoder_cache", isinstance(next_decoder_cache, PcaDynamicCache))
+          
             if output_attentions:
                 all_self_attns += (layer_outputs[1],)
 
@@ -835,13 +825,6 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
             }
         )
         return model_inputs
-    
-    # @staticmethod
-    # def indices_func():
-    #     # return itertools.product([16, 32, 48, 64, 80, 96, 112, 128], repeat=2)
-    #     return itertools.product([32, 64, 96, 128], repeat=2)
-    #     # return itertools.product([16, 32, 64, 128], repeat=2)
-    #     # return itertools.product([32, 64, 128], repeat=2)
 
 
     @classmethod
@@ -863,7 +846,7 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         config.all_layers_mean_value_states = all_layers_mean_value_states if all_layers_mean_value_states is not None else original_all_layers_mean_value_states
         config.all_layers_key_unitary_transform_matrix = all_layers_key_states_eigenvectors_descending if all_layers_key_states_eigenvectors_descending is not None else original_all_layers_key_states_eigenvectors_descending
         config.all_layers_value_unitary_transform_matrix = all_layers_value_states_eigenvectors_descending if all_layers_value_states_eigenvectors_descending is not None else original_all_layers_value_states_eigenvectors_descending
-        # 使用父类的方法加载模型
+        
         print("loading from:", pretrained_model_name_or_path)
         config.attention_bias = False
         config.mlp_bias = False
@@ -877,7 +860,7 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
             **kwargs
         )
 
-        # 返回自定义模型实例
+        
         return model
         
     @add_start_docstrings_to_model_forward(LLAMA_INPUTS_DOCSTRING)
@@ -924,10 +907,7 @@ class PcaLlamaForCausalLM(LlamaForCausalLM):
         "Hey, are you conscious? Can you talk to me?\nI'm not conscious, but I can talk to you."
         ```"""
 
-        # if past_key_values is not None:
-        #     print(isinstance(past_key_values, PcaDynamicCache))
-        # else:
-        #     print("None")
+        
         key_truncate_index, value_truncate_index = key_truncate_index.cpu(), value_truncate_index.cpu()
 
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
