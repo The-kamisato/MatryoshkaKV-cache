@@ -114,7 +114,7 @@ portalocker==2.8.2
 prettytable==3.10.0
 proces==0.1.7
 prompt_toolkit==3.0.46
-protobuf==5.27.1
+protobuf==5.29.5
 psutil==5.9.8
 pyarrow==16.1.0
 pyarrow-hotfix==0.6
